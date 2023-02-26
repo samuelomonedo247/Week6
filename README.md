@@ -1,3 +1,3 @@
 # Week6
-devops class
+devops class begins today
 v1
