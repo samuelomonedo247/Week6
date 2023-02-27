@@ -1,3 +1,3 @@
 # good day
 hi
-thank you
+thanks you
