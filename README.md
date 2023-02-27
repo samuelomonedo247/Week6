@@ -1,3 +1,3 @@
-# Week6
-devops class begins today
-v1
+# good day
+hi
+thank you
