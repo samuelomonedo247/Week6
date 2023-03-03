@@ -36,19 +36,23 @@ podTemplate(yaml: '''
               path: config.json
 ''') {
   node(POD_LABEL) {
-    stage('Build a gradle project') {
-      git 'https://github.com/samuelomonedo247/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
-      container('gradle') {
-        stage('Build a gradle project') {
-          sh '''
-          cd /home/jenkins/agent/workspace/week7/Chapter08/sample1
-          chmod +x gradlew
-          ./gradlew build
-          mv ./build/libs/calculator-0.0.1-SNAPSHOT.jar /mnt
-          '''
+        stage('Run pipeline against a gradle project') {
+            // "container" Selects a container of the agent pod so that all shell steps are executed in that container.
+            container('gradle') {
+                stage('Build a gradle project') {
+                    // from the git plugin
+                    // https://www.jenkins.io/doc/pipeline/steps/git/
+                    git 'https://github.com/samuelomonedo247/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
+                    sh '''
+                    cd Chapter08/sample1
+                    chmod +x gradlew
+                    ./gradlew build
+                    '''
+                    mv ./build/libs/calculator-0.0.1-SNAPSHOT.jar /mnt
+                    '''
+                }
+            }
         }
-      }
-    }
 
     stage('Build Java Image') {
       container('kaniko') {
