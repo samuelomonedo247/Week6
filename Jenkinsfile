@@ -43,14 +43,6 @@ pipeline {
                                     '''
                                 }
                             }
-                        } catch (err) {
-                            currentBuild.result = 'FAILURE'
-                            throw err
-                        }
-                    }
-                }
-            }
-        }
         stage('Build Container') {
             agent any
             when {
