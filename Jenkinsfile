@@ -67,7 +67,7 @@ pipeline {
                             echo 'COPY ./Chapter08/sample1/calculator-0.0.1-SNAPSHOT.jar app.jar' >> Dockerfile
                             echo 'ENTRYPOINT ["java", "-jar", "app.jar"]' >> Dockerfile
                             mv /mnt/Chapter08/sample1/calculator-0.0.1-SNAPSHOT.jar .
-                            /kaniko/executor --context `pwd` --destination somonedo/calculator${env.BRANCH_NAME == 'feature' ? '-feature' : ''}:$BUILD_NUMBER.${env.BRANCH_NAME == 'feature' ? '0.1' : '1.0'}
+                            /kaniko/executor --context `pwd` --destination somonedo/hello-kaniko:1.0
                         '''
                     }
                 }
