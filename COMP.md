@@ -1,0 +1,2 @@
+# comp.me
+theank u
