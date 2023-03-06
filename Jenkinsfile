@@ -19,34 +19,34 @@ pipeline {
             }
             steps {
                 node(POD_LABEL) {
-                    // from the git plugin
-                    // https://www.jenkins.io/doc/pipeline/steps/git/
-                    git 'https://github.com/samuelomonedo247/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
-                    try {
-                        container('gradle') {
-                            sh '''
-                                cd Chapter08/sample1
-                                chmod +x gradlew
-                                ./gradlew clean build
-                            '''
-                        }
-                    } catch (err) {
-                        currentBuild.result = 'FAILURE'
-                        throw err
-                    }
-                    if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'feature') {
-                        echo "Skipping tests for branch ${env.BRANCH_NAME}"
-                    } else {
-                        container('gradle') {
-                            sh '''
-                                cd Chapter08/sample1
-                                chmod +x gradlew
-                                if [ "$BRANCH_NAME" == "feature" ]; then
-                                    ./gradlew clean test --tests="*Test" -x jacocoTestReport
-                                else
-                                    ./gradlew clean test --tests="*Test"
-                                fi
-                            '''
+                    container('gradle') {
+                        git 'https://github.com/samuelomonedo247/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
+                        sh '''
+                            cd Chapter08/sample1
+                            chmod +x gradlew
+                            ./gradlew clean build
+                        '''
+                        try {
+                            if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'feature') {
+                                echo "Skipping tests for branch ${env.BRANCH_NAME}"
+                            } else {
+                                if (env.BRANCH_NAME == 'feature') {
+                                    sh '''
+                                        cd Chapter08/sample1
+                                        chmod +x gradlew
+                                        ./gradlew clean test --tests="*Test" -x jacocoTestReport
+                                    '''
+                                } else {
+                                    sh '''
+                                        cd Chapter08/sample1
+                                        chmod +x gradlew
+                                        ./gradlew clean test --tests="*Test"
+                                    '''
+                                }
+                            }
+                        } catch (err) {
+                            currentBuild.result = 'FAILURE'
+                            throw err
                         }
                     }
                 }
