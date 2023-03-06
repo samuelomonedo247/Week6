@@ -26,7 +26,6 @@ pipeline {
                             chmod +x gradlew
                             ./gradlew clean build
                         '''
-                        try {
                             if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'feature') {
                                 echo "Skipping tests for branch ${env.BRANCH_NAME}"
                             } else {
