@@ -1,3 +1,4 @@
+fix this
 podTemplate(yaml: '''
     apiVersion: v1
     kind: Pod
@@ -53,6 +54,65 @@ podTemplate(yaml: '''
             }
         }
 
+        stage('Checkout') {
+      agent any
+      steps {
+        checkout([$class: 'GitSCM', branches: [[name: '*/feature']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'f7bda929-2990-4167-b177-c7c79fed71c1', url: 'https://github.com/samuelomonedo247/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git']]])
+      }
+    }
+    
+    stage('Build and Test') {
+      agent {
+        label 'docker'
+      }
+      when {
+        branch 'master'
+      }
+      steps {
+        sh './gradlew clean build test'
+      }
+    }
+    
+    stage('Build and Test (except CodeCoverage)') {
+      agent {
+        label 'docker'
+      }
+      when {
+        branch 'feature'
+      }
+      steps {
+        sh './gradlew clean build test -x testCodeCoverage'
+      }
+    }
+    
+    stage('Build and Publish Docker Image') {
+      agent {
+        label 'docker'
+      }
+      when {
+        anyOf {
+          branch 'master'
+          branch 'feature'
+        }
+        not {
+          branch 'playground'
+        }
+      }
+      steps {
+        script {
+          def imageName = "${env.BRANCH_NAME == 'master' ? 'calculator' : 'calculator-feature'}"
+          def imageVersion = "${env.BRANCH_NAME == 'master' ? '1.0' : '0.1'}"
+          try {
+            docker.build("${imageName}:${imageVersion}")
+            docker.withRegistry('https://index.docker.io/v1/', [credentialsId: 'f7bda929-2990-4167-b177-c7c79fed71c1', usernameVariable: 'somonedo', passwordVariable: 'dckr_pat_vopZPIuCcfE52TeFUdJEGRMuC-E']) {
+              docker.push()
+            }
+          } catch (Exception e) {
+            echo "Failed to build and publish Docker image: ${e}"
+          }
+        }
+      }
+	  
         stage('Build Java Image') {
           container('kaniko') {
             stage('Build a gradle project') {
